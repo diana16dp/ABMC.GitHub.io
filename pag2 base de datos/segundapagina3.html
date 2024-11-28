@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
+    <title>Modificaciones</title>
+    <link rel="stylesheet" href="ccss2.css">
+
+</head>
+
+<body>
+    <div class="form-container">
+        <!-- Formulario -->
+        <input type="text" id="searchInput" placeholder="Buscar por nombre, apellido o nro de socio">
+        <button id="searchButton" onclick="searchData()">Buscar</button>
+        <form id="dataForm">
+            <input type="text" id="nombre" name="nombre" placeholder="Nombre" required><br>
+            <input type="text" id="apellido" name="apellido" placeholder="Apellido" required><br>
+            <input type="text" id="direccion" name="direccion" placeholder="Dirección" required><br>
+            <input type="text" id="numero_socio" name="numero_socio" placeholder="Nro de socio" required><br>
+            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required><br>
+            <label class="custom-file-input">
+                <input type="file" id="foto" name="foto">
+                Seleccione una foto
+            </label><br>
+
+            <img id="fotoPreview" src="" alt="Foto previa"><br>
+
+            <div class="button-container">
+                <button type="submit" class="custom-submit-button">Enviar</button>
+                <button type="button" id="deleteButton" onclick="deleteAllData()">Eliminar todos los datos</button>
+            </div>
+        </form>
+    </div>
+
+    <a href="formulario.html" class="nav-button">Menu de inicio</a>
+
+    <script>
+        let currentEditIndex = -1;
+
+        function searchData() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const storedData = JSON.parse(localStorage.getItem('formData')) || [];
+            const foundData = storedData.find((item, index) => {
+                if (
+                    item.nombre.toLowerCase().includes(searchValue) ||
+                    item.apellido.toLowerCase().includes(searchValue) ||
+                    item.numero_socio.toLowerCase().includes(searchValue)
+                ) {
+                    currentEditIndex = index;
+                    return true;
+                }
+                return false;
+            });
+
+            if (foundData) {
+                document.getElementById('nombre').value = foundData.nombre;
+                document.getElementById('apellido').value = foundData.apellido;
+                document.getElementById('direccion').value = foundData.direccion;
+                document.getElementById('numero_socio').value = foundData.numero_socio;
+                document.getElementById('fecha_nacimiento').value = foundData.fecha_nacimiento;
+                document.getElementById('foto').setAttribute('data-url', foundData.foto); // para conservar la URL de la imagen
+                document.getElementById('fotoPreview').src = foundData.foto;
+                document.getElementById('fotoPreview').style.display = 'block';
+            } else {
+                alert('No se encontraron datos.');
+                currentEditIndex = -1;
+            }
+        }
+
+        document.getElementById('dataForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            let formData = new FormData(this);
+            let data = {};
+            formData.forEach((value, key) => {
+                if (key === 'foto') {
+                    if (value.name) { // si se selecciona un nuevo archivo
+                        data[key] = URL.createObjectURL(value);
+                    } else { // usar la URL existente
+                        data[key] = document.getElementById('foto').getAttribute('data-url');
+                    }
+                } else {
+                    data[key] = value;
+                }
+            });
+
+            let storedData = JSON.parse(localStorage.getItem('formData')) || [];
+            if (currentEditIndex > -1) {
+                storedData[currentEditIndex] = data; // Modificar los datos existentes
+                currentEditIndex = -1;
+            } else {
+                storedData.push(data); // Agregar nuevos datos
+            }
+
+            localStorage.setItem('formData', JSON.stringify(storedData));
+
+            alert('Datos guardados exitosamente!');
+            this.reset();
+            document.getElementById('fotoPreview').style.display = 'none'; // Ocultar la imagen previa después de guardar
+        });
+
+        function deleteAllData() {
+            localStorage.removeItem('formData');
+            alert('Todos los datos han sido eliminados.');
+            document.getElementById('fotoPreview').style.display = 'none'; // Ocultar la imagen previa después de eliminar
+        }
+    </script>
+
+<script>
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "firebase/app";
+    import { getAnalytics } from "firebase/analytics";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+    
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyC90f_GbR_cBm1HFl1Wn9pHnfWbivBKLR0",
+      authDomain: "formulario-abmc.firebaseapp.com",
+      databaseURL: "https://formulario-abmc-default-rtdb.firebaseio.com",
+      projectId: "formulario-abmc",
+      storageBucket: "formulario-abmc.appspot.com",
+      messagingSenderId: "1035341650311",
+      appId: "1:1035341650311:web:448186040bea1757ae5b22",
+      measurementId: "G-9SSRC494Z0"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    </script>
+
+</body>
+
+</html>

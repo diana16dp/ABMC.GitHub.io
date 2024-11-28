@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+<title>Baja</title>
+</head>
+<link rel="stylesheet" href="ccss2.css">
+<body>
+    <div class="form-container1">
+        <input type="text" id="searchInput" placeholder="Buscar por nombre o apellido">
+        <button onclick="searchData()">Buscar</button>
+    </div>
+    
+    <div id="dataContainer1">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Dirección</th>
+                    <th>Nro de socio</th>
+                    <th>Foto</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="dataTableBody">
+                <!-- Los datos serán insertados aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <a href="formulario.html" class="nav-button">
+         Menu de inicio</a>
+    
+    <script>
+        function searchData() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const storedData = JSON.parse(localStorage.getItem('formData')) || [];
+            const filteredData = storedData.filter(item => 
+                item.nombre.toLowerCase().includes(searchValue) || 
+                item.apellido.toLowerCase().includes(searchValue)
+            );
+            displayData(filteredData);
+        }
+    
+        function displayData(data) {
+            const tableBody = document.getElementById('dataTableBody');
+            tableBody.innerHTML = '';
+            data.forEach((item, index) => {
+                const row = `<tr>
+                    <td>${item.nombre}</td>
+                    <td>${item.apellido}</td>
+                    <td>${item.direccion}</td>
+                    <td>${item.numero_socio}</td>
+                    <td><img src="${item.foto}" alt="Foto" width="50"></td>
+                    <td>${item.fecha_nacimiento}</td>
+                    <td><button onclick="deleteData(${index})">Eliminar</button></td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+    
+        function deleteData(index) {
+            let storedData = JSON.parse(localStorage.getItem('formData')) || [];
+            storedData.splice(index, 1);
+            localStorage.setItem('formData', JSON.stringify(storedData));
+            searchData(); // Actualiza la tabla después de eliminar
+        }
+    
+        // Mostrar todos los datos al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedData = JSON.parse(localStorage.getItem('formData')) || [];
+            displayData(storedData);
+        });
+    </script>
+    <script>
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "firebase/app";
+        import { getAnalytics } from "firebase/analytics";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+        
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyC90f_GbR_cBm1HFl1Wn9pHnfWbivBKLR0",
+          authDomain: "formulario-abmc.firebaseapp.com",
+          databaseURL: "https://formulario-abmc-default-rtdb.firebaseio.com",
+          projectId: "formulario-abmc",
+          storageBucket: "formulario-abmc.appspot.com",
+          messagingSenderId: "1035341650311",
+          appId: "1:1035341650311:web:448186040bea1757ae5b22",
+          measurementId: "G-9SSRC494Z0"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        </script>
+    </body>
+    </html>
